@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Jewelry Depot — Redirecting…</title>
+  <meta name="robots" content="noindex,nofollow">
+  <meta http-equiv="refresh" content="3;url=https://shop.jewelrydepot.com/">
+  <style>
+    html,body { margin:0; padding:0; background:#fff; color:#222;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+    body { display:flex; align-items:center; justify-content:center; min-height:100vh; text-align:center; }
+    .msg { padding:1.5em; font-size:1rem; line-height:1.4; }
+    .msg a { color:#0a58ca; }
+  </style>
+</head>
+<body>
+  <div class="msg">
+    Opening Jewelry Depot…<br>
+    If nothing happens, <a id="fallback" href="https://shop.jewelrydepot.com/">tap here to continue</a>.
+  </div>
+
+  <script>
+  (function () {
+    var ua = navigator.userAgent || '';
+    var isInstagram = /Instagram/i.test(ua);
+    var isFacebook  = /FBAN|FBAV|FB_IAB/i.test(ua);
+    var isTikTok    = /BytedanceWebview|TikTok/i.test(ua);
+    var isInApp     = isInstagram || isFacebook || isTikTok;
+    var isIOS       = /iPhone|iPad|iPod/i.test(ua);
+    var isAndroid   = /Android/i.test(ua);
+
+    // Read destination from ?to= (preferred) or ?url=
+    var params = new URLSearchParams(location.search);
+    var raw = params.get('to') || params.get('url') || '';
+    var target;
+
+    try {
+      target = raw ? decodeURIComponent(raw) : 'https://shop.jewelrydepot.com/';
+    } catch (e) {
+      target = 'https://shop.jewelrydepot.com/';
+    }
+
+    // Allowlist: only redirect to jewelrydepot.com domains. Prevents open-redirect abuse.
+    var allowed = false;
+    try {
+      var u = new URL(target);
+      allowed = /(^|\.)jewelrydepot\.com$/i.test(u.hostname);
+    } catch (e) {}
+    if (!allowed) target = 'https://shop.jewelrydepot.com/';
+
+    // Preserve any extra query params from the shim URL (utm_*, fbclid, etc.)
+    // by appending them to the target if not already present.
+    try {
+      var dest = new URL(target);
+      params.forEach(function (val, key) {
+        if (key === 'to' || key === 'url') return;
+        if (!dest.searchParams.has(key)) dest.searchParams.set(key, val);
+      });
+      target = dest.toString();
+    } catch (e) {}
+
+    // Update the visible fallback link too
+    var fb = document.getElementById('fallback');
+    if (fb) fb.href = target;
+
+    if (isInApp) {
+      if (isAndroid) {
+        // Android intent: forces Chrome
+        var clean = target.replace(/^https?:\/\//i, '');
+        location.replace(
+          'intent://' + clean +
+          '#Intent;scheme=https;package=com.android.chrome;end'
+        );
+        return;
+      }
+      if (isIOS) {
+        // iOS: x-safari-https:// pops the link out of the in-app webview into Safari
+        location.replace('x-safari-' + target);
+        return;
+      }
+    }
+
+    // Already in a real browser — just go.
+    location.replace(target);
+  })();
+  </script>
+</body>
+</html>
