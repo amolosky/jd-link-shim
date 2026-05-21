@@ -1,0 +1,61 @@
+{%- comment -%}
+  Jewelry Depot — In-App Browser Escape (Meta / TikTok)
+  ------------------------------------------------------
+  Detects Instagram / Facebook / TikTok in-app browsers and re-opens the
+  current URL in Safari (iOS) or Chrome (Android). Normal browsers see
+  nothing — script exits in <1ms.
+
+  Install:
+    1. Open Online Store → Themes → ⋯ → Edit code.
+    2. Open layout/theme.liquid.
+    3. Paste this ENTIRE block as the FIRST thing inside <head>
+       (above the meta charset line if you want; above any <script> for sure).
+    4. Save. No other changes needed anywhere.
+
+  Why this is safe:
+    - Runs synchronously before anything else, but is ~30 lines of JS — adds <1ms.
+    - Only acts on Instagram / Facebook / TikTok UA strings. Everyone else falls
+      through to normal page load with zero side effects.
+    - Skips /checkout, /cart, /account paths so it can never interfere with
+      Apple Pay, Shop Pay, or login flows.
+    - Skips POST requests implicitly (script only runs on GET HTML pages).
+{%- endcomment -%}
+<script>
+(function () {
+  try {
+    var ua = navigator.userAgent || '';
+    var isInApp =
+      /Instagram/i.test(ua) ||
+      /FBAN|FBAV|FB_IAB/i.test(ua) ||
+      /BytedanceWebview|TikTok/i.test(ua);
+    if (!isInApp) return;
+
+    // Never escape on checkout / cart / account / admin pages.
+    var path = location.pathname || '';
+    if (
+      path.indexOf('/checkout') === 0 ||
+      path.indexOf('/checkouts') === 0 ||
+      path.indexOf('/cart')     === 0 ||
+      path.indexOf('/account')  === 0 ||
+      path.indexOf('/admin')    === 0
+    ) return;
+
+    var target = location.href;
+    var isIOS     = /iPhone|iPad|iPod/i.test(ua);
+    var isAndroid = /Android/i.test(ua);
+
+    if (isAndroid) {
+      var clean = target.replace(/^https?:\/\//i, '');
+      location.replace(
+        'intent://' + clean +
+        '#Intent;scheme=https;package=com.android.chrome;end'
+      );
+      return;
+    }
+    if (isIOS) {
+      location.replace('x-safari-' + target);
+      return;
+    }
+  } catch (e) { /* fail silent — never block the page */ }
+})();
+</script>

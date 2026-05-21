@@ -1,8 +1,33 @@
 # Jewelry Depot — Meta In-App Browser Escape Shim
 
+> **⚠️ Status (2026-05-21): Backup only.**
+> The primary in-app browser escape is now a Liquid snippet inside `theme.liquid`
+> on the live Shopify theme — see [`theme-snippet.liquid`](theme-snippet.liquid).
+> That snippet runs on every storefront page load, so it works for **catalog ads,
+> organic posts, email, and DMs** with zero URL changes anywhere.
+>
+> This Pages site (`go.jewelrydepot.com`) is kept as a fallback for manual
+> campaigns where a non-Shopify URL is preferred (link-in-bio tools that
+> don't allow `shop.jewelrydepot.com` directly, etc.). Safe to delete after
+> ~30 days of unused life (planned: 2026-06-20).
+
 A single static HTML page that escapes Instagram / Facebook / TikTok in-app browsers and reopens the destination in **Safari (iOS)** or **Chrome (Android)**. This recovers the conversion lost when Meta traps users in its in-app WebView (no Apple Pay, no saved logins, no Shopify session, broken Klaviyo cookies, etc.).
 
 **Single page.** One `index.html` handles every product, collection, and campaign — the destination is passed as `?to=...`.
+
+---
+
+## Primary solution: theme-snippet.liquid
+
+For the in-store escape (recommended, what's actually running in production):
+
+1. See [`theme-snippet.liquid`](theme-snippet.liquid) in this repo for the source.
+2. Lives in `layout/theme.liquid` of the Jewelry Depot Impulse theme, immediately
+   before the `perf-affirm-dedupe` render.
+3. Tested & confirmed working on Facebook iOS (2026-05-21).
+4. Catalog ads benefit automatically — no ad/feed changes needed.
+
+The rest of this README documents the backup `go.jewelrydepot.com` shim.
 
 ---
 
